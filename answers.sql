@@ -112,9 +112,9 @@ SELECT
     job,
     salary::money AS formatted_salary,
     (CASE
-        WHEN job ILIKE '%Sales%' AND salary > 100000 THEN salary * 1.10
-        WHEN job ILIKE '%Sales%' AND salary < 100000 THEN salary * 1.05
-        WHEN job ILIKE '%Administrator%' THEN salary * 1.05
+        WHEN job ILIKE '%Sales%' AND salary > 100000 THEN salary * 0.1
+        WHEN job ILIKE '%Sales%' AND salary < 100000 THEN salary * 0.05
+        WHEN job ILIKE '%Administrator%' THEN salary * 0.05
         ELSE salary 
     END)::money AS target_comp
 FROM employees;
