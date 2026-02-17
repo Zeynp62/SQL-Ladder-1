@@ -62,28 +62,59 @@ SELECT * FROM employees LIMIT 5;
 -- 23) Query the `employees` table, but convert their salaries to Euros. 
 --     * _Hint:_ 1 Euro = 1.1 USD.
 --     * _Hint2:_ If you think the output is ugly, try out the `ROUND()` function.
-SELECT id,firstname,lastname, job , ROUND(salary*1.1),startdate FROM employees;
+SELECT id,firstname,lastname, job , ROUND(salary/1.1),startdate FROM employees;
 -- 24) Repeat the previous problem, but rename the column `salary_eu`.
-SELECT id,firstname,lastname, job , ROUND(salary*1.1) AS salary_eu,startdate FROM employees;
+SELECT id,firstname,lastname, job , ROUND(salary/1.1) AS salary_eu,startdate FROM employees;
 -- 25) Query the `employees` table, but combine the `firstname` and `lastname` columns to be "Firstname, Lastname" format.
 -- Call this column `fullname`. For example, the first row should contain `Thompson, Christine` as `fullname`.
 -- Also, display the rounded `salary_eu` instead of `salary`.
 --     * _Hint:_ The string concatenation operator is `||`
-SELECT id,CONCAT(firstname,',',lastname) as fullname , job , ROUND(salary*1.1) AS salary_eu,startdate FROM employees;
+SELECT id,CONCAT(firstname,',',lastname) as fullname , job , ROUND(salary/1.1) AS salary_eu,startdate FROM employees;
 -- 26) Query the `employees` table, but replace `startdate` with `startyear` using the `date_part()` function. Also include `fullname` and `salary_eu`.
-SELECT id,CONCAT(firstname,',',lastname) as fullname , job , ROUND(salary*1.1) AS salary_eu, DATE_PART('YEAR', startdate) AS startyear FROM employees;
+SELECT id,CONCAT(firstname,',',lastname) as fullname , job , ROUND(salary/1.1) AS salary_eu, DATE_PART('YEAR', startdate) AS startyear FROM employees;
 -- 27) Repeat the above problem, but instead of using `SUBSTR()`, use `to_char ()`.
-SELECT id,CONCAT(firstname,',',lastname) as fullname , job , ROUND(salary*1.1) AS salary_eu, TO_CHAR(startdate, 'YYYY')::INT AS startyear FROM employees;
--- 28) Query the `employees` table, replacing `firstname`/`lastname` with `fullname` and `startdate` with `startyear`. Print out the salary in USD again, except format it with a dollar sign, comma separators, and no decimal. For example, the first row should read `$123,696`. This column should still be named `salary`.
+SELECT id,CONCAT(firstname,',',lastname) as fullname , job , ROUND(salary/1.1) AS salary_eu, TO_CHAR(startdate, 'YYYY')::INT AS startyear FROM employees;
+-- 28) Query the `employees` table, replacing `firstname`/`lastname` with `fullname` and `startdate` with `startyear`.
+-- Print out the salary in USD again, except format it with a dollar sign, comma separators, and no decimal.
+-- For example, the first row should read `$123,696`. This column should still be named `salary`.
 --     * _Hint:_ Check out SQLite's `printf` function.
 --     * _Hint2:_ The format string you'll need is `$%,.2d`. You should read more about such formatting strings as they're useful in Python, too!
-
 -- For the next few problems, you'll probably want to use `CASE`/`WHEN` statements.
+SELECT id,CONCAT(firstname,',',lastname) as fullname , job , (salary)::money, TO_CHAR(startdate, 'YYYY')::INT AS startyear FROM employees;
 
 -- 29) Last year, only salespeople were eligible for bonuses. Create a column `bonus` that is "Yes" if you're eligible for a bonus, otherwise "No".
-
+SELECT firstname,lastname,job,
+CASE
+WHEN job ILIKE '%Sales%' THEN 'Yes'
+ELSE 'NO'
+END AS bonus
+FROM employees;
 -- 30) This year, only sales people with a salary of $100,000 or higher are eligible for bonuses. Create a `bonus` column like in the last problem for salespeople with salaries at least $100,000.
-
--- 31) Next year, the bonus structure will be a little more complicated. You'll create a `target_comp` column which represents an employee's target total compensation after their bonus. Here is the company's bonus structure:
-
+SELECT firstname,lastname,salary,job,
+CASE
+WHEN job ILIKE '%Sales%' THEN 'Yes'
+ELSE 'No'
+END AS bonus
+FROM employees WHERE salary>100000 ;
+-- 31) Next year, the bonus structure will be a little more complicated.
+-- You'll create a `target_comp` column which represents an employee's target total compensation after their bonus.
+-- Here is the company's bonus structure:
 -- Create this `target_comp` column, making sure to format _both_ the `salary` and `target_comp` columns nicely (ie, with dollar signs and comma separators).
+ --  Salespeople who make more than $100,000 will be eligible for a 10% bonus.
+ --  Salespeople who make less than $100,000 will be eligible for a 5% bonus.
+ --  Administrators will also be eligible for a 5% bonus.
+ --  Anyone who does not meet any of the above descriptions is not eligible for a bonus.
+ -- Create this `target_comp` column, making sure to format _both_ the `salary` and `target_comp` columns nicely
+ -- (ie, with dollar signs and comma separators).
+SELECT 
+    firstname, 
+    lastname, 
+    job,
+    salary::numeric::money AS formatted_salary,
+    (CASE
+        WHEN job ILIKE '%Sales%' AND salary > 100000 THEN salary * 1.10
+        WHEN job ILIKE '%Sales%' AND salary < 100000 THEN salary * 1.05
+        WHEN job ILIKE '%Administrator%' THEN salary * 1.05
+        ELSE salary 
+    END)::numeric::money AS target_comp
+FROM employees;
