@@ -110,11 +110,11 @@ SELECT
     firstname, 
     lastname, 
     job,
-    salary::numeric::money AS formatted_salary,
+    salary::money AS formatted_salary,
     (CASE
         WHEN job ILIKE '%Sales%' AND salary > 100000 THEN salary * 1.10
         WHEN job ILIKE '%Sales%' AND salary < 100000 THEN salary * 1.05
         WHEN job ILIKE '%Administrator%' THEN salary * 1.05
         ELSE salary 
-    END)::numeric::money AS target_comp
+    END)::money AS target_comp
 FROM employees;
