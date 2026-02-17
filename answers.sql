@@ -42,31 +42,38 @@ SELECT * FROM employees_null WHERE job IS NULL;
 -- salary:-1
 -- startdate:NULL
 -- 18) Who is the newest employee in `employees`? The most senior?
-SELECT * FROM employees_null 
+--The most senior :
+SELECT * FROM employees ORDER BY startdate ASC LIMIT 1;
+--The newest employee:
+SELECT * FROM employees ORDER BY startdate DESC LIMIT 1;
 -- 19) Select all employees from `employees` named Thomas.
-
+SELECT * FROM employees WHERE firstname ILIKE 'Thomas';
 -- 20) Select all employees from `employees` named Thomas or Shannon.
-
--- 21) Select all employees from `employees` named Robert, Lisa, or any name that begins with a J. In addition, only show employees who are _not_ in sales. This will be a little bit of a longer query.
+SELECT * FROM employees WHERE firstname ILIKE 'Thomas' OR firstname ILIKE 'Shannon' ;
+-- 21) Select all employees from `employees` named Robert, Lisa, or any name that begins with a J.
+-- In addition, only show employees who are _not_ in sales.
+-- This will be a little bit of a longer query.
 --     * _Hint:_ There will only be 6 rows in the result.
-
+SELECT * FROM employees WHERE (firstname ILIKE 'Robert' OR firstname ILIKE 'Lisa' OR firstname ILIKE 'J%') AND job NOT IN ('Sales');
 
 -- ## Column Operations
 -- 22) Query the top 5 rows of the `employees` table to get a glimpse of these new data.
-
+SELECT * FROM employees LIMIT 5;
 -- 23) Query the `employees` table, but convert their salaries to Euros. 
 --     * _Hint:_ 1 Euro = 1.1 USD.
 --     * _Hint2:_ If you think the output is ugly, try out the `ROUND()` function.
-
+SELECT id,firstname,lastname, job , ROUND(salary*1.1),startdate FROM employees;
 -- 24) Repeat the previous problem, but rename the column `salary_eu`.
-
--- 25) Query the `employees` table, but combine the `firstname` and `lastname` columns to be "Firstname, Lastname" format. Call this column `fullname`. For example, the first row should contain `Thompson, Christine` as `fullname`. Also, display the rounded `salary_eu` instead of `salary`.
+SELECT id,firstname,lastname, job , ROUND(salary*1.1) AS salary_eu,startdate FROM employees;
+-- 25) Query the `employees` table, but combine the `firstname` and `lastname` columns to be "Firstname, Lastname" format.
+-- Call this column `fullname`. For example, the first row should contain `Thompson, Christine` as `fullname`.
+-- Also, display the rounded `salary_eu` instead of `salary`.
 --     * _Hint:_ The string concatenation operator is `||`
-
--- 26) Query the `employees` table, but replace `startdate` with `startyear` using the `SUBSTR()` function. Also include `fullname` and `salary_eu`.
-
--- 27) Repeat the above problem, but instead of using `SUBSTR()`, use `STRFTIME()`.
-
+SELECT id,CONCAT(firstname,',',lastname) as fullname , job , ROUND(salary*1.1) AS salary_eu,startdate FROM employees;
+-- 26) Query the `employees` table, but replace `startdate` with `startyear` using the `date_part()` function. Also include `fullname` and `salary_eu`.
+SELECT id,CONCAT(firstname,',',lastname) as fullname , job , ROUND(salary*1.1) AS salary_eu, DATE_PART('YEAR', startdate) AS startyear FROM employees;
+-- 27) Repeat the above problem, but instead of using `SUBSTR()`, use `to_char ()`.
+SELECT id,CONCAT(firstname,',',lastname) as fullname , job , ROUND(salary*1.1) AS salary_eu, TO_CHAR(startdate, 'YYYY')::INT AS startyear FROM employees;
 -- 28) Query the `employees` table, replacing `firstname`/`lastname` with `fullname` and `startdate` with `startyear`. Print out the salary in USD again, except format it with a dollar sign, comma separators, and no decimal. For example, the first row should read `$123,696`. This column should still be named `salary`.
 --     * _Hint:_ Check out SQLite's `printf` function.
 --     * _Hint2:_ The format string you'll need is `$%,.2d`. You should read more about such formatting strings as they're useful in Python, too!
